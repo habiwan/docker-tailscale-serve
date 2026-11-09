@@ -1,0 +1,17 @@
+[Unit]
+Description=Dynamic Tailscale Serve Manager for Docker Containers
+After=network.target docker.service tailscaled.service
+Requires=docker.service tailscaled.service
+
+[Service]
+Type=simple
+# Typically service resides in /etc/systemd/system/docker-tailscale-serve.service and runs /usr/local/bin/docker-tailscale-serve.sh
+# do not forget to run sudo systemctl daemon-reload && sudo systemctl enable docker-tailscale-serve.service && sudo systemctl start docker-tailscale-serve.service
+# This service wipes any stale serve rules cleanly before launching the script, the script will redo them as soon as it detects exposed docker ports
+ExecStartPre=/usr/bin/tailscale serve reset
+ExecStart=/usr/local/bin/docker-tailscale-serve.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
